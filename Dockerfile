@@ -25,7 +25,7 @@ USER pocketbase
 ENV HOST 0.0.0.0
 ENV PORT 8080
 
-# Health check
+# Health check_
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT}/api/health || exit 1
 
