@@ -22,14 +22,7 @@ RUN chown -R pocketbase:pocketbase /pb /cloud/storage
 USER pocketbase
 
 # Environment variables
-ENV HOST 0.0.0.0
 ENV PORT 8080
 
-# Health check_
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT}/api/health || exit 1
-
-EXPOSE ${PORT}
-
-# Start PocketBase with explicit port binding
-CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8080", "--dir=/cloud/storage/pb_data", "--publicDir=/cloud/storage/pb_public", "--hooksDir=/cloud/storage/pb_hooks"]
+# Start PocketBase with dynamic port binding
+CMD ["/bin/sh", "-c", "/pb/pocketbase serve --http=0.0.0.0:${PORT} --dir=/cloud/storage/pb_data --publicDir=/cloud/storage/pb_public --hooksDir=/cloud/storage/pb_hooks"]
