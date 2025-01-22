@@ -2,14 +2,19 @@ FROM alpine:latest
 
 # Install required packages
 RUN apk add --no-cache \
-    ca-certificates
+    ca-certificates \
+    wget \
+    unzip
 
 # Create necessary directories with proper permissions
 RUN mkdir -p /pb /cloud/storage/pb_data /cloud/storage/pb_public /cloud/storage/pb_hooks && \
     chmod -R 755 /pb /cloud/storage
 
-# Copy local PocketBase binary
-COPY ./pocketbase/pocketbase /pb/
+# Download and install PocketBase
+ARG PB_VERSION=0.22.3
+ADD https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_amd64.zip /tmp/pb.zip
+RUN unzip /tmp/pb.zip -d /pb/ && \
+    rm /tmp/pb.zip
 
 # Copy hooks if they exist
 COPY ./pb_hooks/ /cloud/storage/pb_hooks/
@@ -27,4 +32,4 @@ USER pocketbase
 ENV PORT 8080
 
 # Start PocketBase with dynamic port binding
-CMD ["/bin/sh", "-c", "/pb/pocketbase serve --http=0.0.0.0:${PORT} --dir=/cloud/storage/pb_data --publicDir=/cloud/storage/pb_public --hooksDir=/cloud/storage/pb_hooks"]
+CMD /pb/pocketbase serve --http="0.0.0.0:${PORT}" --dir=/cloud/storage/pb_data --publicDir=/cloud/storage/pb_public --hooksDir=/cloud/storage/pb_hooks
