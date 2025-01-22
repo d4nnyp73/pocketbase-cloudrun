@@ -16,7 +16,8 @@ ADD https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/po
 RUN unzip /tmp/pb.zip -d /pb/ && \
     rm /tmp/pb.zip
 
-# Copy hooks if they exist
+# Copy local data and hooks
+COPY ./pocketbase/pb_data/ /cloud/storage/pb_data/
 COPY ./pb_hooks/ /cloud/storage/pb_hooks/
 
 # Make sure the binary is executable
@@ -25,6 +26,9 @@ RUN chmod +x /pb/pocketbase
 # Use non-root user for better security
 RUN addgroup -S pocketbase && adduser -S pocketbase -G pocketbase
 RUN chown -R pocketbase:pocketbase /pb /cloud/storage
+
+# Ensure proper permissions for SQLite files
+RUN chmod 644 /cloud/storage/pb_data/*.db* || true
 
 USER pocketbase
 
